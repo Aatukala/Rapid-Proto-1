@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // Needed for new Input System
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,35 +10,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 velocity;
     private bool isGrounded;
 
-    private PlayerInputActions inputActions;
-
-    private int desiredLane = 1; // 0 = left, 1 = middle, 2 = right
-    public float laneDistance = 4f; // Distance between lanes
-    private int laneCount = 3;
-
-    void Awake()
+    void Start()
     {
-        controller = GetComponent<CharacterController>(); // <-- Add this line
-        inputActions = new PlayerInputActions();
-
-        inputActions.Player.Move.performed += ctx =>
-        {
-            Vector2 moveValue = ctx.ReadValue<Vector2>();
-            if (moveValue.x < 0)
-                ChangeLane(-1);
-            else if (moveValue.x > 0)
-                ChangeLane(1);
-        };
-    }
-
-    void OnEnable()
-    {
-        inputActions.Player.Enable();
-    }
-
-    void OnDisable()
-    {
-        inputActions.Player.Disable();
+        controller = GetComponent<CharacterController>();
     }
 
     void Update()
@@ -48,36 +21,21 @@ public class PlayerController : MonoBehaviour
 
         if (isGrounded && velocity.y < 0)
         {
-            velocity.y = -2f;
+            velocity.y = -2f; 
         }
 
-        // Move towards the desired lane position (Z-axis)
-        Vector3 targetPosition = transform.position.x * Vector3.right +
-                                 (desiredLane - 1) * laneDistance * Vector3.forward;
-        Vector3 moveDirection = targetPosition - transform.position;
-        moveDirection.y = 0; // Only move horizontally
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");  
 
-        controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+        Vector3 move = transform.right * x + transform.forward * z;
+        controller.Move(move * speed * Time.deltaTime);
 
-        // Apply gravity
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
-
-        // Constant movement forward
-        Vector3 forwardMove = transform.forward;
-        controller.Move(forwardMove * speed * Time.deltaTime);
-    }
-
-    void Jump()
-    {
-        if (isGrounded)
+        if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
-    }
 
-    void ChangeLane(int direction)
-    {
-        desiredLane = Mathf.Clamp(desiredLane + direction, 0, laneCount - 1);
-    }    
+        velocity.y += gravity * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
+    }
 }
