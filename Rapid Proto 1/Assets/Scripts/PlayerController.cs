@@ -68,8 +68,7 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDirection = targetPosition - transform.position;
         moveDirection.y = 0; // Ei vaikuta hyppyyn
 
-        // Constant movement forward
-        Vector3 forwardMove = transform.forward * speed;
+
 
         // Apply gravity
         velocity.y += gravity * Time.deltaTime;
@@ -77,7 +76,7 @@ public class PlayerController : MonoBehaviour
         // Constant forward movement (z-suunnassa)
         Vector3 forwardMove = Vector3.forward * speed * Time.deltaTime;
         controller.Move(forwardMove);
-    }
+    
 
         // Combine all movement
         Vector3 totalMove = moveDirection.normalized * speed;
