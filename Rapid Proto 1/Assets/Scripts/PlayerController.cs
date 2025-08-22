@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
             else if (moveValue.x > 0)
                 ChangeLane(1);
         };
+        inputActions.Player.Jump.performed += ctx => Jump();
     }
 
     void OnEnable()
@@ -57,17 +58,20 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDirection = targetPosition - transform.position;
         moveDirection.y = 0; // Only move horizontally
 
-        controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+        // Constant movement forward
+        Vector3 forwardMove = transform.forward * speed;
 
         // Apply gravity
         velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
 
-        // Constant movement forward
-        Vector3 forwardMove = transform.forward;
-        controller.Move(forwardMove * speed * Time.deltaTime);
+        // Combine all movement
+        Vector3 totalMove = moveDirection.normalized * speed;
+        totalMove += forwardMove;
+        totalMove.y = velocity.y;
+
+        controller.Move(totalMove * Time.deltaTime);
     }
-    //To be added soon
+    
     void Jump()
     {
         if (isGrounded)
