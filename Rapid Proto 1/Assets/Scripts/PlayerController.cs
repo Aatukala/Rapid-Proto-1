@@ -51,22 +51,24 @@ public class PlayerController : MonoBehaviour
             velocity.y = -2f;
         }
 
-        // Calculate target X position for lane
-        float targetX = (desiredLane - 1) * laneDistance;
-        Vector3 currentPosition = transform.position;
-        float newX = Mathf.MoveTowards(currentPosition.x, targetX, speed * Time.deltaTime);
+        // Move towards the desired lane position (Z-axis)
+        Vector3 targetPosition = transform.position.x * Vector3.right +
+                                 (desiredLane - 1) * laneDistance * Vector3.forward;
+        Vector3 moveDirection = targetPosition - transform.position;
+        moveDirection.y = 0; // Only move horizontally
 
-        // Build movement vector: lane (X), gravity (Y), forward (Z)
-        Vector3 move = new Vector3(newX - currentPosition.x, 0, speed * Time.deltaTime);
+        controller.Move(moveDirection.normalized * speed * Time.deltaTime);
 
         // Apply gravity
         velocity.y += gravity * Time.deltaTime;
-        move.y = velocity.y * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
 
-        controller.Move(move);
-
-        //To be added soon
-        void Jump()
+        // Constant movement forward
+        Vector3 forwardMove = transform.forward;
+        controller.Move(forwardMove * speed * Time.deltaTime);
+    }
+    //To be added soon
+    void Jump()
     {
         if (isGrounded)
         {
