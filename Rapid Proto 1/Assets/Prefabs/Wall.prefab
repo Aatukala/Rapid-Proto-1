@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 5031214838811413384}
   - component: {fileID: 8860553413965555892}
   m_Layer: 0
-  m_Name: StoneWall
-  m_TagString: Untagged
+  m_Name: Wall
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

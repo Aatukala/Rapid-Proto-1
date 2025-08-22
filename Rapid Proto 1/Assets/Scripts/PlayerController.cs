@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
+    private bool isJumping = false;
 
     private PlayerInputActions inputActions;
 
@@ -19,9 +20,10 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        controller = GetComponent<CharacterController>(); 
+        controller = GetComponent<CharacterController>();
         inputActions = new PlayerInputActions();
 
+        // Liikkuminen sivuille (lane switch)
         inputActions.Player.Move.performed += ctx =>
         {
             Vector2 moveValue = ctx.ReadValue<Vector2>();
@@ -29,6 +31,12 @@ public class PlayerController : MonoBehaviour
                 ChangeLane(-1);
             else if (moveValue.x > 0)
                 ChangeLane(1);
+        };
+
+        // Hyppy
+        inputActions.Player.Jump.performed += ctx =>
+        {
+            Jump();
         };
     }
 
@@ -49,13 +57,16 @@ public class PlayerController : MonoBehaviour
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
+            isJumping = false; // Palautetaan hypyn tila
         }
 
-        // Move towards the desired lane position (Z-axis)
-        Vector3 targetPosition = transform.position.x * Vector3.right +
-                                 (desiredLane - 1) * laneDistance * Vector3.forward;
+        // Lasketaan target position lane-logiikalla (x-akseli)
+        Vector3 targetPosition = transform.position.z * Vector3.forward +
+                                 Vector3.up * transform.position.y +
+                                 (desiredLane - 1) * laneDistance * Vector3.right;
+
         Vector3 moveDirection = targetPosition - transform.position;
-        moveDirection.y = 0; // Only move horizontally
+        moveDirection.y = 0; // Ei vaikuta hyppyyn
 
         controller.Move(moveDirection.normalized * speed * Time.deltaTime);
 
@@ -63,21 +74,53 @@ public class PlayerController : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
 
-        // Constant movement forward
-        Vector3 forwardMove = transform.forward;
-        controller.Move(forwardMove * speed * Time.deltaTime);
+        // Constant forward movement (z-suunnassa)
+        Vector3 forwardMove = Vector3.forward * speed * Time.deltaTime;
+        controller.Move(forwardMove);
     }
-    //To be added soon
+
     void Jump()
     {
         if (isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            isJumping = true;
         }
     }
 
     void ChangeLane(int direction)
     {
         desiredLane = Mathf.Clamp(desiredLane + direction, 0, laneCount - 1);
-    }    
+    }
+
+    // Esteiden käsittely
+    private void OnTriggerEnter(Collider other)
+    {
+        Obstacle obstacle = other.GetComponent<Obstacle>();
+        if (obstacle == null) return;
+
+        switch (obstacle.type)
+        {
+            case ObstacleType.Wall:
+            case ObstacleType.Pit:
+                if (!isJumping)
+                {
+                    GameOver("Et hypännyt yli esteen!");
+                }
+                break;
+
+            case ObstacleType.Pillar:
+                if (isJumping)
+                {
+                    GameOver("Et voi hypätä pilarin yli!");
+                }
+                break;
+        }
+    }
+
+    private void GameOver(string reason)
+    {
+        Debug.Log("Game Over: " + reason);
+        // TODO: tähän peli loppuu (UI, restart, jne.)
+    }
 }

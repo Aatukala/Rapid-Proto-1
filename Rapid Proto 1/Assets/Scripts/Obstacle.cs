@@ -1,13 +1,15 @@
 using UnityEngine;
 
+public enum ObstacleType
+{
+    Wall,   // kivimuuri
+    Pit,    // rotko
+    Pillar  // kivipilari
+}
+
+
 public class Obstacle : MonoBehaviour
 {
-    public enum ObstacleType
-{
-    Wall,   // kivimuuri → pitää hypätä yli
-    Pit,    // rotko → pitää hypätä yli
-    Pillar  // kivipilari → pitää väistää kaistaa vaihtamalla
-}
 
     public ObstacleType type;
 
