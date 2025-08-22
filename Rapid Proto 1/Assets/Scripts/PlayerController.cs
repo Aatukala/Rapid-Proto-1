@@ -1,11 +1,12 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // Needed for new Input System
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     public float speed = 6f;
     public float gravity = -9.81f;
     public float jumpHeight = 1.5f;
+    public float laneChangeSpeed = 10f;
 
     private CharacterController controller;
     private Vector3 velocity;
@@ -23,17 +24,15 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         inputActions = new PlayerInputActions();
 
-        // Liikkuminen sivuille (lane switch)
         inputActions.Player.Move.performed += ctx =>
         {
             Vector2 moveValue = ctx.ReadValue<Vector2>();
             if (moveValue.x < 0)
-                ChangeLane(-1);
+                ChangeLane(-1); // Move left
             else if (moveValue.x > 0)
-                ChangeLane(1);
+                ChangeLane(1);  // Move right
         };
 
-        // Hyppy
         inputActions.Player.Jump.performed += ctx =>
         {
             Jump();
@@ -54,41 +53,42 @@ public class PlayerController : MonoBehaviour
     {
         isGrounded = controller.isGrounded;
 
+        // Reset jump state when grounded
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
-            isJumping = false; // Palautetaan hypyn tila
+            isJumping = false;
         }
 
-        // Lasketaan target position lane-logiikalla (x-akseli)
-        Vector3 targetPosition = transform.position.z * Vector3.forward +
-                                 Vector3.up * transform.position.y +
-                                 (desiredLane - 1) * laneDistance * Vector3.right;
+        // Calculate target Z position for lane
+        // REVERSED: Now left lane is positive Z, right lane is negative Z
+        float targetZ = (1 - desiredLane) * laneDistance;
 
-        Vector3 moveDirection = targetPosition - transform.position;
-        moveDirection.y = 0; // Ei vaikuta hyppyyn
-
-
+        // Calculate lane movement direction
+        float laneMovement = (targetZ - transform.position.z) * laneChangeSpeed * Time.deltaTime;
 
         // Apply gravity
-        velocity.y += gravity * Time.deltaTime;
+        if (!isGrounded)
+        {
+            velocity.y += gravity * Time.deltaTime;
+        }
 
-        // Constant forward movement (z-suunnassa)
-        Vector3 forwardMove = Vector3.forward * speed * Time.deltaTime;
-        controller.Move(forwardMove);
-    
+        // Move forward constantly (X-axis for forward movement)
+        Vector3 forwardMove = Vector3.right * speed * Time.deltaTime;
 
-        // Combine all movement
-        Vector3 totalMove = moveDirection.normalized * speed;
-        totalMove += forwardMove;
-        totalMove.y = velocity.y;
+        // Lane movement (Z-axis)
+        Vector3 laneMove = Vector3.forward * laneMovement;
 
-        controller.Move(totalMove * Time.deltaTime);
+        // Apply vertical movement (jumping/falling)
+        Vector3 verticalMove = Vector3.up * velocity.y * Time.deltaTime;
+
+        // Combine all movements
+        controller.Move(forwardMove + laneMove + verticalMove);
     }
-    
+
     void Jump()
     {
-        if (isGrounded)
+        if (isGrounded && !isJumping)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             isJumping = true;
@@ -98,9 +98,9 @@ public class PlayerController : MonoBehaviour
     void ChangeLane(int direction)
     {
         desiredLane = Mathf.Clamp(desiredLane + direction, 0, laneCount - 1);
+        Debug.Log($"Changed lane to: {desiredLane} (0=left, 1=middle, 2=right)");
     }
 
-    // Esteiden käsittely
     private void OnTriggerEnter(Collider other)
     {
         Obstacle obstacle = other.GetComponent<Obstacle>();
