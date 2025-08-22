@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        controller = GetComponent<CharacterController>(); // <-- Add this line
+        controller = GetComponent<CharacterController>(); 
         inputActions = new PlayerInputActions();
 
         inputActions.Player.Move.performed += ctx =>
@@ -51,24 +51,22 @@ public class PlayerController : MonoBehaviour
             velocity.y = -2f;
         }
 
-        // Move towards the desired lane position (Z-axis)
-        Vector3 targetPosition = transform.position.x * Vector3.right +
-                                 (desiredLane - 1) * laneDistance * Vector3.forward;
-        Vector3 moveDirection = targetPosition - transform.position;
-        moveDirection.y = 0; // Only move horizontally
+        // Calculate target X position for lane
+        float targetX = (desiredLane - 1) * laneDistance;
+        Vector3 currentPosition = transform.position;
+        float newX = Mathf.MoveTowards(currentPosition.x, targetX, speed * Time.deltaTime);
 
-        controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+        // Build movement vector: lane (X), gravity (Y), forward (Z)
+        Vector3 move = new Vector3(newX - currentPosition.x, 0, speed * Time.deltaTime);
 
         // Apply gravity
         velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+        move.y = velocity.y * Time.deltaTime;
 
-        // Constant movement forward
-        Vector3 forwardMove = transform.forward;
-        controller.Move(forwardMove * speed * Time.deltaTime);
-    }
+        controller.Move(move);
 
-    void Jump()
+        //To be added soon
+        void Jump()
     {
         if (isGrounded)
         {
