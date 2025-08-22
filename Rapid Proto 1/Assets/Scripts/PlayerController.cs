@@ -68,17 +68,25 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDirection = targetPosition - transform.position;
         moveDirection.y = 0; // Ei vaikuta hyppyyn
 
-        controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+        // Constant movement forward
+        Vector3 forwardMove = transform.forward * speed;
 
         // Apply gravity
         velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
 
         // Constant forward movement (z-suunnassa)
         Vector3 forwardMove = Vector3.forward * speed * Time.deltaTime;
         controller.Move(forwardMove);
     }
 
+        // Combine all movement
+        Vector3 totalMove = moveDirection.normalized * speed;
+        totalMove += forwardMove;
+        totalMove.y = velocity.y;
+
+        controller.Move(totalMove * Time.deltaTime);
+    }
+    
     void Jump()
     {
         if (isGrounded)
