@@ -6,29 +6,35 @@ public class SpawnManager : MonoBehaviour
     public Transform player;             // pelaajan sijainti
     public float spawnDistance = 30f;    // kuinka kaukana edessä este spawnaa
     public float segmentLength = 10f;    // väli seuraavaan spawniin
-    
-    private float nextSpawnZ = 0f;
-    private float[] lanes = { -2f, 0f, 2f }; // kolme kaistaa
+
+    private float nextSpawnX = 0f;       // koska liike X-suunnassa
+
+    // Lane sijoittuu Z-akselille (vasen = -4, keskellä = 0, oikea = +4)
+    private float[] lanes = { -4f, 0f, 4f };
+    public float yOffset = 0.5f;
 
     void Update()
     {
-        if (player.position.z > nextSpawnZ - spawnDistance)
+        // Pelaaja liikkuu X-suunnassa eteenpäin
+        if (player.position.x > nextSpawnX - spawnDistance)
         {
             SpawnObstacle();
-            nextSpawnZ += segmentLength;
+            nextSpawnX += segmentLength;
         }
     }
 
     void SpawnObstacle()
     {
-        // Valitaan satunnainen este
+        // Satunnainen este
         GameObject prefab = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)];
 
-        // Valitaan satunnainen kaista
-        float laneX = lanes[Random.Range(0, lanes.Length)];
+        // Satunnainen lane (Z-suunnassa)
+        float laneZ = lanes[Random.Range(0, lanes.Length)];
 
-        // Luodaan este
-        Vector3 spawnPos = new Vector3(laneX, 0, nextSpawnZ);
+        // Spawnataan este pelaajan eteen oikeaan laneen
+        Vector3 spawnPos = new Vector3(nextSpawnX, yOffset, laneZ);
         Instantiate(prefab, spawnPos, Quaternion.identity);
+
+        Debug.Log("Spawnattu: " + prefab.name + " paikkaan " + spawnPos);
     }
 }

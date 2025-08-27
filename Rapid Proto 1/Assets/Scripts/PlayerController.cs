@@ -39,15 +39,8 @@ public class PlayerController : MonoBehaviour
         };
     }
 
-    void OnEnable()
-    {
-        inputActions.Player.Enable();
-    }
-
-    void OnDisable()
-    {
-        inputActions.Player.Disable();
-    }
+    void OnEnable() => inputActions.Player.Enable();
+    void OnDisable() => inputActions.Player.Disable();
 
     void Update()
     {
@@ -60,29 +53,21 @@ public class PlayerController : MonoBehaviour
             isJumping = false;
         }
 
-        // Calculate target Z position for lane
-        // REVERSED: Now left lane is positive Z, right lane is negative Z
-        float targetZ = (1 - desiredLane) * laneDistance;
+        // ----- Lane Movement -----
+        float targetZ = (desiredLane - 1) * laneDistance; // left=-4, middle=0, right=+4
+        float newZ = Mathf.MoveTowards(transform.position.z, targetZ, laneChangeSpeed * Time.deltaTime);
+        Vector3 laneMove = new Vector3(0, 0, newZ - transform.position.z);
 
-        // Calculate lane movement direction
-        float laneMovement = (targetZ - transform.position.z) * laneChangeSpeed * Time.deltaTime;
+        // ----- Forward Movement -----
+        Vector3 forwardMove = Vector3.left * speed * Time.deltaTime;
 
-        // Apply gravity
+        // ----- Gravity + Jump -----
         if (!isGrounded)
-        {
             velocity.y += gravity * Time.deltaTime;
-        }
 
-        // Move forward constantly (X-axis for forward movement)
-        Vector3 forwardMove = Vector3.right * speed * Time.deltaTime;
-
-        // Lane movement (Z-axis)
-        Vector3 laneMove = Vector3.forward * laneMovement;
-
-        // Apply vertical movement (jumping/falling)
         Vector3 verticalMove = Vector3.up * velocity.y * Time.deltaTime;
 
-        // Combine all movements
+        // ----- Apply Movement -----
         controller.Move(forwardMove + laneMove + verticalMove);
     }
 
@@ -111,16 +96,12 @@ public class PlayerController : MonoBehaviour
             case ObstacleType.Wall:
             case ObstacleType.Pit:
                 if (!isJumping)
-                {
                     GameOver("Et hypännyt yli esteen!");
-                }
                 break;
 
             case ObstacleType.Pillar:
                 if (isJumping)
-                {
                     GameOver("Et voi hypätä pilarin yli!");
-                }
                 break;
         }
     }

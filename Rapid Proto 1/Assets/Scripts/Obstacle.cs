@@ -24,4 +24,22 @@ public class Obstacle : MonoBehaviour
         };
         Gizmos.DrawWireCube(transform.position, transform.localScale);
     }
+
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            PlayerHealth health = other.GetComponent<PlayerHealth>();
+            if (health != null)
+            {
+                health.TakeDamage(1);
+            }
+
+            Destroy(gameObject);
+        }
+    }
 }
+
+
+
