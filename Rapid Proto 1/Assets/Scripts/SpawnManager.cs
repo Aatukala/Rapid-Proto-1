@@ -2,27 +2,26 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    public GameObject[] obstaclePrefabs; // kivimuuri, rotko, kivipilari
-    public Transform player;
-    public float spawnDistance = 50f;    // kuinka kaukana pelaajan edessä esteitä pitää olla
-    public float segmentLength = 10f;    // väli seuraavien mahdollisten esteiden välillä
-    
-    private float nextSpawnX = 0f;
+    public GameObject[] obstaclePrefabs; 
+    public Transform player;             
+    public float spawnDistance = 30f;    
+    public float segmentLength = 10f;    
+    public float startDelay = 20f;       
 
-    // Kaistat Z-suunnassa
-    private float[] lanes = { -4f, 0f, 4f };
+    private float nextSpawnX;
+
+    private float[] lanes = { -4f, 0f, 4f }; 
     public float yOffset = 0.5f;
+    public LayerMask groundLayer; // Layer, jossa maa sijaitsee
 
     void Start()
     {
-        // aloitetaan spawnaus heti alun jälkeen (ettei pelaajan päälle tule)
-        nextSpawnX = player.position.x + 15f;
+        nextSpawnX = startDelay;
     }
 
     void Update()
     {
-        // generoidaan niin kauan kuin pelaajan eteen on tilaa
-        while (nextSpawnX < player.position.x + spawnDistance)
+        if (player.position.x > nextSpawnX - spawnDistance)
         {
             SpawnObstacle();
             nextSpawnX += segmentLength;
@@ -31,14 +30,24 @@ public class SpawnManager : MonoBehaviour
 
     void SpawnObstacle()
     {
-        // satunnaisesti jätetään osa väleistä tyhjäksi
-        if (Random.value < 0.3f)
-            return;
-
         GameObject prefab = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)];
         float laneZ = lanes[Random.Range(0, lanes.Length)];
 
-        Vector3 spawnPos = new Vector3(nextSpawnX, yOffset, laneZ);
-        Instantiate(prefab, spawnPos, Quaternion.identity);
+        // Spawnataan hieman korkeammalle, jotta raycast löytää maan
+        Vector3 spawnPos = new Vector3(nextSpawnX, 10f, laneZ);
+
+        // Raycast alas tarkistamaan, että maata löytyy
+        RaycastHit hit;
+        if (Physics.Raycast(spawnPos, Vector3.down, out hit, 20f, groundLayer))
+        {
+            // Maan päällä → spawnataan este
+            spawnPos.y = hit.point.y + yOffset;
+            Instantiate(prefab, spawnPos, Quaternion.identity);
+        }
+        else
+        {
+            // Rotko alla → ei spawnata
+            // Debug.Log("Estettä ei spawndata: rotko alla!");
+        }
     }
 }
