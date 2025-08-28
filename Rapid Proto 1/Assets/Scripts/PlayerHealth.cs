@@ -1,24 +1,27 @@
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
 {
     public int maxHearts = 3;
     public int currentHearts;
 
-    public GameObject[] heartIcons;       // UI heart GameObjectit
-    public GameObject deathScreen;        // Death screen UI
-    public ParticleSystem deathExplosion; // Räjähdys prefab
+    public GameObject[] heartIcons;
+    public GameObject explosionPrefab; // Räjähdysprefab
+    public GameObject deathScreen;
 
     private PlayerController playerController;
+
+    public float deathDelay = 1f; // viive kuolemaan ja deathscreeniin
 
     void Start()
     {
         currentHearts = maxHearts;
         playerController = GetComponent<PlayerController>();
         UpdateHeartsUI();
-
         if (deathScreen != null)
-            deathScreen.SetActive(false); // piilotetaan death screen alussa
+            deathScreen.SetActive(false);
     }
 
     public void TakeDamage(int amount)
@@ -29,7 +32,9 @@ public class PlayerHealth : MonoBehaviour
         UpdateHeartsUI();
 
         if (currentHearts <= 0)
-            Die();
+        {
+            StartCoroutine(DieRoutine());
+        }
     }
 
     public void Heal(int amount)
@@ -48,23 +53,39 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    void Die()
+    IEnumerator DieRoutine()
     {
-        Debug.Log("Player died!");
-
-        // Estetään pelaajan liikkuminen
+        // Estetään liikkuminen
         if (playerController != null)
             playerController.enabled = false;
 
+        // Piilotetaan pelaaja
+        HidePlayer();
+
         // Spawnataan räjähdys
-        if (deathExplosion != null)
-            Instantiate(deathExplosion, transform.position, Quaternion.identity);
+        if (explosionPrefab != null)
+            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+
+        // Odotetaan viive
+        yield return new WaitForSecondsRealtime(deathDelay);
 
         // Näytetään death screen
         if (deathScreen != null)
             deathScreen.SetActive(true);
 
-        // Pysäytetään peli kokonaan
+        // Pysäytetään peli
         Time.timeScale = 0f;
     }
+
+    void HidePlayer()
+    {
+        // Piilotetaan kaikki Renderer-komponentit lapsineen
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer rend in renderers)
+            rend.enabled = false;
+
+        // Vaihtoehtoisesti voidaan myös deactivate koko pelaaja:
+        // gameObject.SetActive(false);
+    }
+
 }

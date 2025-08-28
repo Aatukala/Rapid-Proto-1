@@ -2,52 +2,51 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    public GameObject[] obstaclePrefabs; 
-    public Transform player;             
-    public float spawnDistance = 30f;    
-    public float segmentLength = 10f;    
-    public float startDelay = 20f;       
+    public GameObject[] obstaclePrefabs;
+    public Transform player;
+    public float spawnAheadDistance = 50f; // Kuinka kaukana pelaajasta spawnaa
+    public float segmentLength = 10f;      // Etäisyys spawnaussegmenttien välillä
+    public float yOffset = 0.5f;
 
     private float nextSpawnX;
+    private float[] lanes = { -4f, 0f, 4f };
 
-    private float[] lanes = { -4f, 0f, 4f }; 
-    public float yOffset = 0.5f;
-    public LayerMask groundLayer; // Layer, jossa maa sijaitsee
+    [Header("Scaling")]
+    public int baseObstacleCount = 1;
+    public int maxObstacleCount = 3;
+
+    [Header("Progression")]
+    public float maxDistance = 5000f; // ProgressBarin maksimietäisyys
 
     void Start()
     {
-        nextSpawnX = startDelay;
+        // Pelaaja liikkuu -X, joten ensimmäinen spawn tulee edestä
+        nextSpawnX = player.position.x - segmentLength;
     }
 
     void Update()
     {
-        if (player.position.x > nextSpawnX - spawnDistance)
+        // Spawnataan niin kauan kuin pelaaja lähestyy nextSpawnX:ää
+        while (player.position.x - spawnAheadDistance < nextSpawnX)
         {
-            SpawnObstacle();
-            nextSpawnX += segmentLength;
+            SpawnObstacles();
+            nextSpawnX -= segmentLength; // Seuraava segmentti edemmäksi
         }
     }
 
-    void SpawnObstacle()
+    void SpawnObstacles()
     {
-        GameObject prefab = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)];
-        float laneZ = lanes[Random.Range(0, lanes.Length)];
+        float distanceTravelled = Mathf.Abs(player.position.x); 
+        float progress = Mathf.Clamp(distanceTravelled / maxDistance, 0f, 1f);
 
-        // Spawnataan hieman korkeammalle, jotta raycast löytää maan
-        Vector3 spawnPos = new Vector3(nextSpawnX, 10f, laneZ);
+        int obstacleCount = Mathf.RoundToInt(Mathf.Lerp(baseObstacleCount, maxObstacleCount, progress));
 
-        // Raycast alas tarkistamaan, että maata löytyy
-        RaycastHit hit;
-        if (Physics.Raycast(spawnPos, Vector3.down, out hit, 20f, groundLayer))
+        for (int i = 0; i < obstacleCount; i++)
         {
-            // Maan päällä → spawnataan este
-            spawnPos.y = hit.point.y + yOffset;
+            GameObject prefab = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)];
+            float laneZ = lanes[Random.Range(0, lanes.Length)];
+            Vector3 spawnPos = new Vector3(nextSpawnX, yOffset, laneZ);
             Instantiate(prefab, spawnPos, Quaternion.identity);
-        }
-        else
-        {
-            // Rotko alla → ei spawnata
-            // Debug.Log("Estettä ei spawndata: rotko alla!");
         }
     }
 }
