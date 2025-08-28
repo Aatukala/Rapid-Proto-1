@@ -83,27 +83,12 @@ public class PlayerController : MonoBehaviour
     void ChangeLane(int direction)
     {
         desiredLane = Mathf.Clamp(desiredLane + direction, 0, laneCount - 1);
-        Debug.Log($"Changed lane to: {desiredLane} (0=left, 1=middle, 2=right)");
     }
 
     private void OnTriggerEnter(Collider other)
     {
         Obstacle obstacle = other.GetComponent<Obstacle>();
         if (obstacle == null) return;
-
-        switch (obstacle.type)
-        {
-            case ObstacleType.Wall:
-            case ObstacleType.Pit:
-                if (!isJumping)
-                    GameOver("Et hypännyt yli esteen!");
-                break;
-
-            case ObstacleType.Pillar:
-                if (isJumping)
-                    GameOver("Et voi hypätä pilarin yli!");
-                break;
-        }
     }
 
     private void GameOver(string reason)

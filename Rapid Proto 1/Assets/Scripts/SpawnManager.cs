@@ -3,20 +3,26 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     public GameObject[] obstaclePrefabs; // kivimuuri, rotko, kivipilari
-    public Transform player;             // pelaajan sijainti
-    public float spawnDistance = 30f;    // kuinka kaukana edessä este spawnaa
-    public float segmentLength = 10f;    // väli seuraavaan spawniin
+    public Transform player;
+    public float spawnDistance = 50f;    // kuinka kaukana pelaajan edessä esteitä pitää olla
+    public float segmentLength = 10f;    // väli seuraavien mahdollisten esteiden välillä
+    
+    private float nextSpawnX = 0f;
 
-    private float nextSpawnX = 0f;       // koska liike X-suunnassa
-
-    // Lane sijoittuu Z-akselille (vasen = -4, keskellä = 0, oikea = +4)
+    // Kaistat Z-suunnassa
     private float[] lanes = { -4f, 0f, 4f };
     public float yOffset = 0.5f;
 
+    void Start()
+    {
+        // aloitetaan spawnaus heti alun jälkeen (ettei pelaajan päälle tule)
+        nextSpawnX = player.position.x + 15f;
+    }
+
     void Update()
     {
-        // Pelaaja liikkuu X-suunnassa eteenpäin
-        if (player.position.x > nextSpawnX - spawnDistance)
+        // generoidaan niin kauan kuin pelaajan eteen on tilaa
+        while (nextSpawnX < player.position.x + spawnDistance)
         {
             SpawnObstacle();
             nextSpawnX += segmentLength;
@@ -25,16 +31,14 @@ public class SpawnManager : MonoBehaviour
 
     void SpawnObstacle()
     {
-        // Satunnainen este
-        GameObject prefab = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)];
+        // satunnaisesti jätetään osa väleistä tyhjäksi
+        if (Random.value < 0.3f)
+            return;
 
-        // Satunnainen lane (Z-suunnassa)
+        GameObject prefab = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)];
         float laneZ = lanes[Random.Range(0, lanes.Length)];
 
-        // Spawnataan este pelaajan eteen oikeaan laneen
         Vector3 spawnPos = new Vector3(nextSpawnX, yOffset, laneZ);
         Instantiate(prefab, spawnPos, Quaternion.identity);
-
-        Debug.Log("Spawnattu: " + prefab.name + " paikkaan " + spawnPos);
     }
 }
