@@ -91,6 +91,17 @@ public class PlayerController : MonoBehaviour
         if (obstacle == null) return;
     }
 
+    public int GetDesiredLane()
+    {
+        return desiredLane;
+    }
+
+    public float GetLaneDistance()
+    {
+        return laneDistance;
+    }
+
+
     private void GameOver(string reason)
     {
         Debug.Log("Game Over: " + reason);
