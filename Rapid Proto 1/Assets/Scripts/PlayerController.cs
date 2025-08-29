@@ -106,4 +106,14 @@ public class PlayerController : MonoBehaviour
     public int GetDesiredLane() => desiredLane;
     public float GetLaneDistance() => laneDistance;
     public float GetDistanceTravelled() => Mathf.Abs(transform.position.x - startX);
+
+    public float GetSpeed()
+    {
+        return baseSpeed;
+    }
+
+    public void SetSpeed(float newSpeed)
+    {
+        baseSpeed = newSpeed;
+    }
 }
