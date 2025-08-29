@@ -106,6 +106,7 @@ public class PlayerController : MonoBehaviour
     public float GetCurrentSpeed() => currentSpeed;
     public int GetDesiredLane() => desiredLane;
     public float GetLaneDistance() => laneDistance;
+<<<<<<< Updated upstream
     public float GetDistanceTravelled() => Mathf.Abs(transform.position.x - startX);
 
     public float GetSpeed()
@@ -117,4 +118,6 @@ public class PlayerController : MonoBehaviour
     {
         baseSpeed = newSpeed;
     }
+=======
+>>>>>>> Stashed changes
 }
