@@ -5,8 +5,8 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float baseSpeed = 10f;
-    public float maxSpeed = 20f;
+    public float baseSpeed = 6f;
+    public float maxSpeed = 12f;
     public float gravity = -9.81f;
     public float jumpHeight = 1.5f;
     public float laneChangeSpeed = 10f;
@@ -14,9 +14,10 @@ public class PlayerController : MonoBehaviour
     private int laneCount = 3;
 
     [Header("Progression")]
-    public float speedIncreaseDistance = 500f; // matka, jossa nopeus kasvaa maxSpeed:iin
-    public float totalDistance = 5000f; // ProgressBarin maksimietäisyys
     public Slider progressBar;
+    public Transform finishLine;   // viittaus maaliviivaan
+    private float startX;          // aloituspaikka X-akselilla
+    private float totalDistance;   // start → maaliviiva
 
     private CharacterController controller;
     private Vector3 velocity;
@@ -26,8 +27,6 @@ public class PlayerController : MonoBehaviour
 
     private int desiredLane = 1; // 0 = left, 1 = middle, 2 = right
     private float currentSpeed;
-
-    private float startX;
 
     void Awake()
     {
@@ -47,8 +46,8 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         startX = transform.position.x;
-        if (progressBar != null)
-            progressBar.value = 0f;
+        if (finishLine != null)
+            totalDistance = Mathf.Abs(startX - finishLine.position.x);
     }
 
     void OnEnable() => inputActions.Player.Enable();
@@ -70,9 +69,8 @@ public class PlayerController : MonoBehaviour
         Vector3 laneMove = new Vector3(0, 0, newZ - transform.position.z);
 
         // Forward speed scaling
-        float distanceTravelled = Mathf.Abs(transform.position.x - startX);
-        float progress = Mathf.Clamp(distanceTravelled / speedIncreaseDistance, 0f, 1f);
-        currentSpeed = Mathf.Lerp(baseSpeed, maxSpeed, progress);
+        float progressSpeed = Mathf.Clamp01(Mathf.Abs(startX - transform.position.x) / totalDistance);
+        currentSpeed = Mathf.Lerp(baseSpeed, maxSpeed, progressSpeed);
         Vector3 forwardMove = Vector3.left * currentSpeed * Time.deltaTime;
 
         // Gravity + jump
@@ -84,8 +82,11 @@ public class PlayerController : MonoBehaviour
         controller.Move(forwardMove + laneMove + verticalMove);
 
         // Update progress bar
-        if (progressBar != null)
-            progressBar.value = Mathf.Clamp(distanceTravelled / totalDistance, 0f, 1f);
+        if (progressBar != null && finishLine != null)
+        {
+            float distanceTravelled = Mathf.Abs(startX - transform.position.x);
+            progressBar.value = Mathf.Clamp01(distanceTravelled / totalDistance);
+        }
     }
 
     void Jump()

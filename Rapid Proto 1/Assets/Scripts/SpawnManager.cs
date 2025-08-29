@@ -4,8 +4,11 @@ public class SpawnManager : MonoBehaviour
 {
     public GameObject[] obstaclePrefabs;
     public Transform player;
-    public float spawnAheadDistance = 50f; // Kuinka kaukana pelaajasta spawnaa
-    public float segmentLength = 10f;      // Etäisyys spawnaussegmenttien välillä
+    public Transform finishLine;
+
+    [Header("Spawning")]
+    public float spawnAheadDistance = 50f;   // kuinka pitkälle eteenpäin spawnaa
+    public float segmentLength = 10f;
     public float yOffset = 0.5f;
 
     private float nextSpawnX;
@@ -15,38 +18,48 @@ public class SpawnManager : MonoBehaviour
     public int baseObstacleCount = 1;
     public int maxObstacleCount = 3;
 
-    [Header("Progression")]
-    public float maxDistance = 5000f; // ProgressBarin maksimietäisyys
-
     void Start()
     {
-        // Pelaaja liikkuu -X, joten ensimmäinen spawn tulee edestä
-        nextSpawnX = player.position.x - segmentLength;
+        // Asetetaan ensimmäinen spawn-piste vähän pelaajan eteen (negatiivinen x)
+        nextSpawnX = player.position.x - spawnAheadDistance;
     }
 
     void Update()
     {
-        // Spawnataan niin kauan kuin pelaaja lähestyy nextSpawnX:ää
-        while (player.position.x - spawnAheadDistance < nextSpawnX)
+        if (finishLine == null) return;
+
+        // Spawnaa esteitä niin kauan kuin ollaan ennen maaliviivaa
+        while (nextSpawnX > finishLine.position.x)
         {
             SpawnObstacles();
-            nextSpawnX -= segmentLength; // Seuraava segmentti edemmäksi
+            nextSpawnX -= segmentLength; // siirretään seuraava spawn-piste eteenpäin (-x suuntaan)
         }
     }
 
     void SpawnObstacles()
     {
-        float distanceTravelled = Mathf.Abs(player.position.x); 
-        float progress = Mathf.Clamp(distanceTravelled / maxDistance, 0f, 1f);
+        float progress = Mathf.Clamp01(-player.position.x / 1000f);
 
         int obstacleCount = Mathf.RoundToInt(Mathf.Lerp(baseObstacleCount, maxObstacleCount, progress));
-
         for (int i = 0; i < obstacleCount; i++)
         {
             GameObject prefab = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)];
             float laneZ = lanes[Random.Range(0, lanes.Length)];
-            Vector3 spawnPos = new Vector3(nextSpawnX, yOffset, laneZ);
-            Instantiate(prefab, spawnPos, Quaternion.identity);
+
+            // Perus spawnipiste
+            Vector3 spawnPos = new Vector3(nextSpawnX, 50f, laneZ); // laitetaan y korkealle
+
+            // Raycast alaspäin löytämään maa
+            if (Physics.Raycast(spawnPos, Vector3.down, out RaycastHit hit, 100f))
+            {
+                // Varmistetaan että osuimme vain maahan
+                if (hit.collider.CompareTag("Ground"))
+                {
+                    spawnPos.y = hit.point.y + yOffset; 
+                    Instantiate(prefab, spawnPos, Quaternion.identity);
+                }
+            }
         }
     }
+
 }
