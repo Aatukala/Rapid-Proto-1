@@ -5679,6 +5679,7 @@ MonoBehaviour:
   obstaclePrefabs:
   - {fileID: 7546075885872079911, guid: f593557d4ae92b1488c3f85cd50c070f, type: 3}
   - {fileID: 4991904376832658186, guid: 67174ead3acba8546b38f0c971e51a8e, type: 3}
+  healthPickupPrefab: {fileID: 3629773852228048270, guid: b95b541933f38b54f8622567fec77df2, type: 3}
   player: {fileID: 1344313969}
   finishLine: {fileID: 886441339}
   spawnAheadDistance: 30
@@ -5686,6 +5687,7 @@ MonoBehaviour:
   yOffset: 0
   baseObstacleCount: 1
   maxObstacleCount: 3
+  healthPickupChance: 0.15
 --- !u!4 &1653356396
 Transform:
   m_ObjectHideFlags: 0

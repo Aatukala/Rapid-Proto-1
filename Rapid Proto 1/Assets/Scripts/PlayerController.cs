@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     public float gravity = -9.81f;
     public float jumpHeight = 1.5f;
     public float laneChangeSpeed = 10f;
-    public float laneDistance = 4f; 
+    public float laneDistance = 4f;
     private int laneCount = 3;
 
     [Header("Progression")]
@@ -106,4 +106,17 @@ public class PlayerController : MonoBehaviour
     public float GetCurrentSpeed() => currentSpeed;
     public int GetDesiredLane() => desiredLane;
     public float GetLaneDistance() => laneDistance;
+    
+    
+    public float GetDistanceTravelled() => Mathf.Abs(transform.position.x - startX);
+
+    public float GetSpeed()
+    {
+        return baseSpeed;
+    }
+
+    public void SetSpeed(float newSpeed)
+    {
+        baseSpeed = newSpeed;
+    }
 }
