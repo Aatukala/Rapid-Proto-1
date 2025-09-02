@@ -117,6 +117,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Turbo"",
+                    ""type"": ""Button"",
+                    ""id"": ""24e4a56e-3994-4866-b5d8-860253a08519"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -196,6 +205,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Throw"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8f26c7f0-504f-49b9-9970-2cf7dbb9f943"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Turbo"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -207,6 +227,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Throw = m_Player.FindAction("Throw", throwIfNotFound: true);
+        m_Player_Turbo = m_Player.FindAction("Turbo", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -290,6 +311,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Throw;
+    private readonly InputAction m_Player_Turbo;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -313,6 +335,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Throw".
         /// </summary>
         public InputAction @Throw => m_Wrapper.m_Player_Throw;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Turbo".
+        /// </summary>
+        public InputAction @Turbo => m_Wrapper.m_Player_Turbo;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -348,6 +374,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Throw.started += instance.OnThrow;
             @Throw.performed += instance.OnThrow;
             @Throw.canceled += instance.OnThrow;
+            @Turbo.started += instance.OnTurbo;
+            @Turbo.performed += instance.OnTurbo;
+            @Turbo.canceled += instance.OnTurbo;
         }
 
         /// <summary>
@@ -368,6 +397,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Throw.started -= instance.OnThrow;
             @Throw.performed -= instance.OnThrow;
             @Throw.canceled -= instance.OnThrow;
+            @Turbo.started -= instance.OnTurbo;
+            @Turbo.performed -= instance.OnTurbo;
+            @Turbo.canceled -= instance.OnTurbo;
         }
 
         /// <summary>
@@ -429,5 +461,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnThrow(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Turbo" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnTurbo(InputAction.CallbackContext context);
     }
 }
