@@ -3,7 +3,7 @@ using UnityEngine;
 public enum ObstacleType
 {
     Wall,   // kivimuuri
-    Pit,    // rotko
+    Boulder,    // Boulder
     Pillar  // kivipilari
 }
 
@@ -18,7 +18,7 @@ public class Obstacle : MonoBehaviour
         Gizmos.color = type switch
         {
             ObstacleType.Wall => Color.red,
-            ObstacleType.Pit => Color.blue,
+            ObstacleType.Boulder => Color.blue,
             ObstacleType.Pillar => Color.green,
             _ => Color.white
         };
