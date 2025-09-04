@@ -5439,6 +5439,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3164803535808048430, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
+      propertyPath: flameEffect
+      value: 
+      objectReference: {fileID: 1713997101}
     - target: {fileID: 3776126387992171254, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
       propertyPath: deathScreen
       value: 
@@ -5486,6 +5490,30 @@ PrefabInstance:
     - target: {fileID: 5834022188920820741, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
       propertyPath: m_Name
       value: TestPlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 6710722657321598906, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4.58
+      objectReference: {fileID: 0}
+    - target: {fileID: 6710722657321598906, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4.76
+      objectReference: {fileID: 0}
+    - target: {fileID: 6710722657321598906, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4.48
+      objectReference: {fileID: 0}
+    - target: {fileID: 8180594557944061211, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8180594557944061211, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8180594557944061211, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6011,14 +6039,18 @@ MonoBehaviour:
   - {fileID: 7546075885872079911, guid: f593557d4ae92b1488c3f85cd50c070f, type: 3}
   - {fileID: 4991904376832658186, guid: 67174ead3acba8546b38f0c971e51a8e, type: 3}
   healthPickupPrefab: {fileID: 3629773852228048270, guid: b95b541933f38b54f8622567fec77df2, type: 3}
+  goldCoinPrefab: {fileID: 7055758884456084104, guid: a96d05c4dbbfe03429ae0a966e3b7b78, type: 3}
+  silverCoinPrefab: {fileID: 3578457524708836221, guid: 6f807387d5e788a4c8fd8859444bf34d, type: 3}
   player: {fileID: 1834854294}
   finishLine: {fileID: 886441339}
   spawnAheadDistance: 30
   segmentLength: 10
-  yOffset: 0
+  coinYOffset: 1
   baseObstacleCount: 1
   maxObstacleCount: 3
-  healthPickupChance: 1
+  healthPickupChance: 0.15
+  goldCoinChance: 0.2
+  silverCoinChance: 0.4
 --- !u!4 &1653356396
 Transform:
   m_ObjectHideFlags: 0
@@ -6046,6 +6078,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a654c9837cbdab438d1ebbc44824b45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1713997101 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2959297919320630894, guid: d8ebca1dbb8af6243a7b17dec5971140, type: 3}
+  m_PrefabInstance: {fileID: 1596200983}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1800661215
 GameObject:
   m_ObjectHideFlags: 0
