@@ -8,8 +8,7 @@ public class MainMenu : MonoBehaviour
     {
         // Jos käytät build settingsissä useampaa sceneä,
         // tämä lataa seuraavan indeksissä olevan scenen
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-
+        SceneManager.LoadScene("MainScene");
         // Vaihtoehto: SceneManager.LoadScene("SceneNimi");
     }
 
